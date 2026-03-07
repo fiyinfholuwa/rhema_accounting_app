@@ -1,0 +1,638 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIV RHEMAHOUSE ACCOUNTING APP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 50: '#eff6ff', 100: '#dbeafe', 600: '#2563eb', 800: '#1e3a8a', 900: '#172554' },
+                        brand: { red: '#dc2626', dark: '#991b1b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow: hidden; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-navy-800 selection:text-white">
+
+    <!-- ==================== LOGIN PAGE ==================== -->
+    <section id="login-page" class="h-screen w-full flex items-center justify-center bg-navy-900 relative overflow-hidden">
+        <!-- Background Decor -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div class="absolute top-10 left-10 w-64 h-64 bg-brand-red rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-navy-600 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md z-10 transform transition-all hover:scale-[1.01]">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-navy-50 mb-4">
+                    <i class="fas fa-church text-3xl text-navy-800"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-navy-900 tracking-tight">MIV RHEMAHOUSE</h1>
+                <p class="text-slate-500 mt-2">Secure Management Portal</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                    <input type="email" value="admin@church.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-navy-800 focus:border-transparent outline-none transition" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                    <input type="password" value="password" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-navy-800 focus:border-transparent outline-none transition" required>
+                </div>
+                <button type="submit" class="w-full bg-navy-800 text-white font-bold py-3 rounded-xl hover:bg-navy-900 hover:shadow-lg transition transform active:scale-95">
+                    Sign In
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="app-layout" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-50">
+        
+        <!-- Desktop Sidebar -->
+        <aside class="hidden md:flex flex-col w-72 bg-navy-900 text-white h-screen sticky top-0 shadow-xl z-20">
+            <div class="p-8 flex items-center gap-3 border-b border-navy-800">
+                <i class="fas fa-church text-2xl text-brand-red"></i>
+                <span class="text-xl font-bold tracking-wide">RHEMAHOUSE</span>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <button onclick="navigate('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-all duration-200" id="nav-dashboard">
+                    <i class="fas fa-chart-pie w-5 text-center"></i> Dashboard
+                </button>
+                <button onclick="navigate('attendance')" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-navy-100 hover:bg-navy-800 transition-all duration-200" id="nav-attendance">
+                    <i class="fas fa-users w-5 text-center"></i> Attendance
+                </button>
+                <button onclick="navigate('offerings')" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-navy-100 hover:bg-navy-800 transition-all duration-200" id="nav-offerings">
+                    <i class="fas fa-hand-holding-dollar w-5 text-center"></i> Tithes & Offerings
+                </button>
+                <button onclick="navigate('expenses')" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-navy-100 hover:bg-navy-800 transition-all duration-200" id="nav-expenses">
+                    <i class="fas fa-file-invoice-dollar w-5 text-center"></i> Expenses
+                </button>
+            </nav>
+            
+            <div class="p-6 border-t border-navy-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-brand-red flex items-center justify-center font-bold">A</div>
+                    <div>
+                        <p class="text-sm font-semibold">Admin User</p>
+                        <p class="text-xs text-navy-300">Super Admin</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full text-sm text-navy-300 hover:text-white flex items-center gap-2 transition">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <!-- Mobile Header -->
+            <header class="md:hidden bg-navy-900 text-white p-4 shadow-md flex justify-between items-center z-20">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-church text-brand-red"></i>
+                    <span class="font-bold text-lg">MIV RHEMAHOUSE</span>
+                </div>
+                <button onclick="logout()" class="text-navy-200 hover:text-white"><i class="fas fa-sign-out-alt"></i></button>
+            </header>
+
+            <!-- Scrollable Content -->
+            <div id="content-scroll" class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
+                <div id="content-area" class="max-w-7xl mx-auto fade-in">
+                    <!-- Content Injected Here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around py-3 z-30 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <button style="padding: 10px;" onclick="navigate('dashboard')" class="mobile-nav-btn flex flex-col items-center gap-1 text-navy-800" data-target="dashboard">
+                <i class="fas fa-chart-pie text-xl"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button onclick="navigate('attendance')" class="mobile-nav-btn flex flex-col items-center gap-1 text-slate-400" data-target="attendance">
+                <i class="fas fa-users text-xl"></i>
+                <span class="text-[10px] font-medium">Attendance</span>
+            </button>
+            <button onclick="navigate('offerings')" class="mobile-nav-btn flex flex-col items-center gap-1 text-slate-400" data-target="offerings">
+                <i class="fas fa-hand-holding-dollar text-xl"></i>
+                <span class="text-[10px] font-medium">Money</span>
+            </button>
+            <button onclick="navigate('expenses')" class="mobile-nav-btn flex flex-col items-center gap-1 text-slate-400" data-target="expenses">
+                <i class="fas fa-file-invoice-dollar text-xl"></i>
+                <span class="text-[10px] font-medium">Expenses</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ==================== MODAL (Add/Edit) ==================== -->
+    <div id="modal-overlay" class="fixed inset-0 bg-navy-900 bg-opacity-75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg transform scale-95 transition-transform duration-200" id="modal-content">
+            <div class="flex justify-between items-center p-6 border-b border-slate-100">
+                <h3 id="modal-title" class="text-xl font-bold text-navy-900">Add Record</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-brand-red transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="modal-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+                <!-- Dynamic Fields Injected Here -->
+            </form>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-200 transition">Cancel</button>
+                <button type="submit" form="modal-form" class="px-5 py-2.5 rounded-lg bg-navy-800 text-white font-medium hover:bg-navy-900 shadow-lg shadow-navy-800/30 transition">Save Record</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // --- 1. STATE & DATA MANAGEMENT ---
+        // Initialize data from LocalStorage or use defaults
+        const defaultData = {
+            attendance: Array.from({ length: 15 }, (_, i) => ({
+                id: Date.now() + i,
+                date: new Date(2023, 9, i + 1).toISOString().split('T')[0],
+                male: Math.floor(Math.random() * 50) + 20,
+                female: Math.floor(Math.random() * 60) + 30,
+                children: Math.floor(Math.random() * 30) + 10
+            })),
+            offerings: Array.from({ length: 15 }, (_, i) => ({
+                id: Date.now() + i + 100,
+                payer: `Member ${i + 1}`,
+                type: i % 3 === 0 ? 'Tithe' : 'Offering',
+                mode: i % 2 === 0 ? 'Cash' : 'Transfer',
+                amount: (Math.random() * 5000 + 100).toFixed(2),
+                date: new Date(2023, 9, i + 1).toISOString().split('T')[0]
+            })),
+            expenses: Array.from({ length: 10 }, (_, i) => ({
+                id: Date.now() + i + 200,
+                purpose: ['Fuel', 'Salary', 'Maintenance', 'Utilities'][i % 4],
+                type: 'Expense',
+                amount: (Math.random() * 2000).toFixed(2),
+                date: new Date(2023, 9, i + 1).toISOString().split('T')[0]
+            }))
+        };
+
+        let appData = JSON.parse(localStorage.getItem('churchAppData')) || defaultData;
+        
+        function saveData() {
+            localStorage.setItem('churchAppData', JSON.stringify(appData));
+            renderContent(); // Re-render to show updates
+        }
+
+        let currentPage = 1;
+        let currentView = 'dashboard';
+        let editingId = null;
+        const itemsPerPage = 8;
+
+        // --- 2. AUTHENTICATION ---
+        function handleLogin(e) {
+            e.preventDefault();
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('app-layout').classList.remove('hidden');
+            navigate('dashboard');
+        }
+
+        function logout() {
+            if(confirm("Are you sure you want to logout?")) {
+                document.getElementById('app-layout').classList.add('hidden');
+                document.getElementById('login-page').classList.remove('hidden');
+            }
+        }
+
+        // --- 3. NAVIGATION ---
+        function navigate(view) {
+            currentView = view;
+            currentPage = 1;
+            
+            // Update Active States
+            document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(btn => {
+                const isActive = btn.id === `nav-${view}` || btn.dataset.target === view;
+                if (isActive) {
+                    btn.classList.remove('text-navy-100', 'text-slate-400');
+                    btn.classList.add('bg-navy-800', 'text-white', 'shadow-md'); // Desktop active
+                    if(btn.classList.contains('mobile-nav-btn')) {
+                         btn.classList.add('text-navy-800'); // Mobile active text
+                    }
+                } else {
+                    btn.classList.add('text-navy-100', 'text-slate-400');
+                    btn.classList.remove('bg-navy-800', 'text-white', 'shadow-md', 'text-navy-800');
+                }
+            });
+
+            renderContent();
+        }
+
+        // --- 4. RENDERING ENGINE ---
+        function renderContent() {
+            const container = document.getElementById('content-area');
+            container.innerHTML = '';
+
+            if (currentView === 'dashboard') renderDashboard(container);
+            else renderTableSection(container);
+        }
+
+        // --- 5. DASHBOARD LOGIC ---
+        function renderDashboard(container) {
+            // Calculate Stats
+            const totalAttendance = appData.attendance.reduce((acc, c) => acc + c.male + c.female + c.children, 0);
+            
+            const totalTithe = appData.offerings
+                .filter(i => i.type === 'Tithe')
+                .reduce((acc, c) => acc + parseFloat(c.amount), 0);
+                
+            const totalOffering = appData.offerings
+                .filter(i => i.type === 'Offering')
+                .reduce((acc, c) => acc + parseFloat(c.amount), 0);
+
+            const totalExpenses = appData.expenses
+                .reduce((acc, c) => acc + parseFloat(c.amount), 0);
+
+            const netBalance = (totalTithe + totalOffering) - totalExpenses;
+
+            container.innerHTML = `
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-navy-900">Dashboard Overview</h2>
+                    <p class="text-slate-500">Welcome back, here's what's happening today.</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Attendance Card -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition">
+                        <div class="absolute right-0 top-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition group-hover:scale-110"></div>
+                        <div class="relative z-10">
+                            <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">Total Attendance</p>
+                            <h3 class="text-4xl font-bold text-navy-900 mt-2">${totalAttendance}</h3>
+                            <div class="mt-4 flex items-center text-sm text-green-600 font-medium">
+                                <i class="fas fa-arrow-up mr-1"></i> <span>Active Members</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tithe Card -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition">
+                        <div class="absolute right-0 top-0 w-24 h-24 bg-green-50 rounded-bl-full -mr-4 -mt-4 transition group-hover:scale-110"></div>
+                        <div class="relative z-10">
+                            <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">Total Tithes</p>
+                            <h3 class="text-4xl font-bold text-green-600 mt-2">#${totalTithe.toLocaleString()}</h3>
+                            <p class="text-xs text-slate-400 mt-2">Faithful contributions</p>
+                        </div>
+                    </div>
+
+                    <!-- Offering Card -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition">
+                        <div class="absolute right-0 top-0 w-24 h-24 bg-brand-red/10 rounded-bl-full -mr-4 -mt-4 transition group-hover:scale-110"></div>
+                        <div class="relative z-10">
+                            <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">Total Offerings</p>
+                            <h3 class="text-4xl font-bold text-brand-red mt-2">#${totalOffering.toLocaleString()}</h3>
+                            <p class="text-xs text-slate-400 mt-2">Special & Sunday</p>
+                        </div>
+                    </div>
+
+                    <!-- Balance Card -->
+                    <div class="bg-navy-900 p-6 rounded-2xl shadow-lg shadow-navy-900/20 text-white relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-bl-full -mr-8 -mt-8"></div>
+                        <div class="relative z-10">
+                            <p class="text-navy-200 text-sm font-medium uppercase tracking-wider">Net Balance</p>
+                            <h3 class="text-4xl font-bold mt-2">#${netBalance.toLocaleString()}</h3>
+                            <div class="mt-4 flex items-center text-sm text-navy-300">
+                                <i class="fas fa-wallet mr-2"></i> <span>Available Funds</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-bold text-lg text-navy-900">Recent Transactions</h3>
+                        <button onclick="navigate('offerings')" class="text-sm text-navy-600 font-medium hover:text-navy-800">View All</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+                                <tr>
+                                    <th class="px-6 py-4 font-semibold">Date</th>
+                                    <th class="px-6 py-4 font-semibold">Description</th>
+                                    <th class="px-6 py-4 font-semibold">Type</th>
+                                    <th class="px-6 py-4 font-semibold text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${[...appData.offerings, ...appData.expenses]
+                                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                    .slice(0, 5)
+                                    .map(item => {
+                                        const isExpense = item.purpose !== undefined;
+                                        return `
+                                        <tr class="hover:bg-slate-50 transition">
+                                            <td class="px-6 py-4 text-sm text-slate-600">${item.date}</td>
+                                            <td class="px-6 py-4 font-medium text-navy-900">${item.payer || item.purpose}</td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 rounded-full text-xs font-semibold ${isExpense ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">
+                                                    ${item.type}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right font-bold ${isExpense ? 'text-red-600' : 'text-green-600'}">
+                                                ${isExpense ? '-' : '+'}#${parseFloat(item.amount).toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    `}).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 6. TABLE & CRUD LOGIC ---
+        function renderTableSection(container) {
+            const data = appData[currentView];
+            const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+            
+            // Filter
+            const filteredData = data.filter(item => 
+                Object.values(item).some(val => String(val).toLowerCase().includes(searchTerm))
+            );
+
+            // Pagination
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+            // Headers Configuration
+            let headers = [];
+            if(currentView === 'attendance') headers = ['Date', 'Male', 'Female', 'Children', 'Total'];
+            if(currentView === 'offerings') headers = ['Date', 'Payer', 'Type', 'Mode', 'Amount'];
+            if(currentView === 'expenses') headers = ['Date', 'Purpose', 'Type', 'Amount'];
+
+            container.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-navy-900 capitalize">${currentView} Management</h2>
+                        <p class="text-slate-500 text-sm">Manage and track your ${currentView} records.</p>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="search-input" placeholder="Search records..." 
+                                class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-navy-800 focus:border-transparent outline-none transition" 
+                                onkeyup="renderContent()">
+                        </div>
+                        <button onclick="openModal()" class="bg-navy-800 text-white px-5 py-2.5 rounded-xl hover:bg-navy-900 shadow-lg shadow-navy-800/20 transition flex items-center gap-2 whitespace-nowrap">
+                            <i class="fas fa-plus"></i> <span class="hidden sm:inline">Add New</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                                <tr>
+                                    ${headers.map(h => `<th class="px-6 py-4 font-semibold">${h}</th>`).join('')}
+                                    <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${paginatedData.length > 0 ? paginatedData.map(item => {
+                                    let row = '';
+                                    if(currentView === 'attendance') {
+                                        row = `
+                                            <td class="px-6 py-4 font-medium text-navy-900">${item.date}</td>
+                                            <td class="px-6 py-4 text-slate-600">${item.male}</td>
+                                            <td class="px-6 py-4 text-slate-600">${item.female}</td>
+                                            <td class="px-6 py-4 text-slate-600">${item.children}</td>
+                                            <td class="px-6 py-4 font-bold text-navy-800 bg-navy-50 rounded-lg mx-2">${item.male + item.female + item.children}</td>
+                                        `;
+                                    } else if (currentView === 'offerings') {
+                                        row = `
+                                            <td class="px-6 py-4 font-medium text-navy-900">${item.date}</td>
+                                            <td class="px-6 py-4 text-slate-600">${item.payer}</td>
+                                            <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">${item.type}</span></td>
+                                            <td class="px-6 py-4 text-slate-500 text-sm">${item.mode}</td>
+                                            <td class="px-6 py-4 font-bold text-green-600">$${parseFloat(item.amount).toLocaleString()}</td>
+                                        `;
+                                    } else if (currentView === 'expenses') {
+                                        row = `
+                                            <td class="px-6 py-4 font-medium text-navy-900">${item.date}</td>
+                                            <td class="px-6 py-4 text-slate-600">${item.purpose}</td>
+                                            <td class="px-6 py-4"><span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">${item.type}</span></td>
+                                            <td class="px-6 py-4 font-bold text-red-600">$${parseFloat(item.amount).toLocaleString()}</td>
+                                        `;
+                                    }
+                                    return `
+                                        <tr class="hover:bg-slate-50 transition group">
+                                            ${row}
+                                            <td class="px-6 py-4 text-right">
+                                                <button onclick="openModal(${item.id})" class="text-slate-400 hover:text-navy-600 p-2 rounded-lg hover:bg-navy-50 transition">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="deleteItem(${item.id})" class="text-slate-400 hover:text-brand-red p-2 rounded-lg hover:bg-red-50 transition">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('') : '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">No records found</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="px-6 py-4 border-t border-slate-100 flex justify-between items-center bg-slate-50">
+                        <span class="text-sm text-slate-500">Showing <span class="font-bold text-navy-900">${startIndex + 1}</span> to <span class="font-bold text-navy-900">${Math.min(startIndex + itemsPerPage, filteredData.length)}</span> of <span class="font-bold text-navy-900">${filteredData.length}</span></span>
+                        <div class="flex gap-2">
+                            <button onclick="changePage(-1)" ${currentPage === 1 ? 'disabled class="px-3 py-1 border rounded bg-white text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1 border rounded bg-white text-navy-600 hover:bg-navy-50"'}>Prev</button>
+                            <button onclick="changePage(1)" ${currentPage === totalPages ? 'disabled class="px-3 py-1 border rounded bg-white text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1 border rounded bg-white text-navy-600 hover:bg-navy-50"'}>Next</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            renderContent();
+        }
+
+        function deleteItem(id) {
+            if(confirm('Are you sure you want to delete this record?')) {
+                appData[currentView] = appData[currentView].filter(i => i.id !== id);
+                saveData();
+            }
+        }
+
+        // --- 7. MODAL & FORM LOGIC ---
+        function openModal(id = null) {
+            editingId = id;
+            const modal = document.getElementById('modal-overlay');
+            const form = document.getElementById('modal-form');
+            const title = document.getElementById('modal-title');
+            
+            // Reset Form
+            form.innerHTML = '';
+            editingId ? title.innerText = `Edit ${currentView.slice(0, -1)}` : title.innerText = `Add New ${currentView.slice(0, -1)}`;
+
+            let item = null;
+            if(editingId) {
+                item = appData[currentView].find(i => i.id === id);
+            }
+
+            // Generate Fields based on View
+            if(currentView === 'attendance') {
+                form.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Service Date</label>
+                            <input type="date" name="date" value="${item ? item.date : new Date().toISOString().split('T')[0]}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Male Count</label>
+                            <input type="number" name="male" value="${item ? item.male : ''}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Female Count</label>
+                            <input type="number" name="female" value="${item ? item.female : ''}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Children Count</label>
+                            <input type="number" name="children" value="${item ? item.children : ''}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                    </div>
+                `;
+            } else if (currentView === 'offerings') {
+                form.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                            <input type="date" name="date" value="${item ? item.date : new Date().toISOString().split('T')[0]}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Payer Name</label>
+                            <input type="text" name="payer" value="${item ? item.payer : ''}" placeholder="e.g. John Doe" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Type</label>
+                            <select name="type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none bg-white">
+                                <option value="Tithe" ${item && item.type === 'Tithe' ? 'selected' : ''}>Tithe</option>
+                                <option value="Offering" ${item && item.type === 'Offering' ? 'selected' : ''}>Offering</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Mode</label>
+                            <select name="mode" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none bg-white">
+                                <option value="Cash" ${item && item.mode === 'Cash' ? 'selected' : ''}>Cash</option>
+                                <option value="Transfer" ${item && item.mode === 'Transfer' ? 'selected' : ''}>Transfer</option>
+                                <option value="Cheque" ${item && item.mode === 'Cheque' ? 'selected' : ''}>Cheque</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Amount ($)</label>
+                            <input type="number" step="0.01" name="amount" value="${item ? item.amount : ''}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                    </div>
+                `;
+            } else if (currentView === 'expenses') {
+                form.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                            <input type="date" name="date" value="${item ? item.date : new Date().toISOString().split('T')[0]}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
+                            <input type="text" name="purpose" value="${item ? item.purpose : ''}" placeholder="e.g. Generator Fuel" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Type</label>
+                            <select name="type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none bg-white">
+                                <option value="Expense" ${item && item.type === 'Expense' ? 'selected' : ''}>Expense (Money Out)</option>
+                                <option value="Add Funds" ${item && item.type === 'Add Funds' ? 'selected' : ''}>Add Funds (Money In)</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Amount ($)</label>
+                            <input type="number" step="0.01" name="amount" value="${item ? item.amount : ''}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-navy-800 outline-none" required>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Show Modal
+            modal.classList.remove('hidden');
+            // Small timeout to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modal-content').classList.remove('scale-95');
+                document.getElementById('modal-content').classList.add('scale-100');
+                document.body.classList.add('modal-active');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal-overlay');
+            modal.classList.add('opacity-0');
+            document.getElementById('modal-content').classList.remove('scale-100');
+            document.getElementById('modal-content').classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }, 250);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convert numbers
+            if(data.male) data.male = parseInt(data.male);
+            if(data.female) data.female = parseInt(data.female);
+            if(data.children) data.children = parseInt(data.children);
+            if(data.amount) data.amount = parseFloat(data.amount).toFixed(2);
+
+            if(editingId) {
+                // Update
+                const index = appData[currentView].findIndex(i => i.id === editingId);
+                appData[currentView][index] = { ...appData[currentView][index], ...data };
+            } else {
+                // Create
+                data.id = Date.now();
+                appData[currentView].unshift(data); // Add to top
+            }
+
+            saveData();
+            closeModal();
+        }
+
+        // Initialize
+        // (Login page is shown by default)
+    </script>
+</body>
+</html>
