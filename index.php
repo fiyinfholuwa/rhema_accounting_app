@@ -175,11 +175,11 @@ $isLoggedIn = isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
         <!-- Header - Fixed height -->
         <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center flex-shrink-0">
             <h2 id="pageTitle" class="text-xl font-bold text-navy-800">Dashboard</h2>
-            <div class="flex gap-3">
-                <button onclick="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-green-700 transition">
+            <div id="headerButtonsContainer" class="flex gap-3">
+                <button id="exportBtn" onclick="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-green-700 transition">
                     <i class="fas fa-download"></i> Export CSV
                 </button>
-                <button onclick="openAddModal()" id="addBtn" class="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-navy-900 transition">
+                <button id="addBtn" onclick="openAddModal()" class="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-navy-900 transition">
                     <i class="fas fa-plus"></i> Add
                 </button>
             </div>
@@ -232,6 +232,17 @@ let currentModule = 'dashboard';
 let currentData = [];
 let editId = null;
 
+// ============ HIDE/SHOW HEADER BUTTONS BASED ON MODULE ============
+function updateHeaderButtons(module) {
+    if (module === 'dashboard') {
+        $('#exportBtn').hide();
+        $('#addBtn').hide();
+    } else {
+        $('#exportBtn').show();
+        $('#addBtn').show();
+    }
+}
+
 // ============ PAGE PERSISTENCE ============
 function saveCurrentModule(module) {
     localStorage.setItem('currentModule', module);
@@ -262,6 +273,9 @@ function updateActiveNav(module) {
         'expenses': 'Expenses Management'
     };
     $('#pageTitle').text(titles[module] || module.charAt(0).toUpperCase() + module.slice(1));
+    
+    // Update header buttons visibility
+    updateHeaderButtons(module);
 }
 
 // ============ Check authentication on page load ============
